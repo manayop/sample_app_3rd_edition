@@ -1,3 +1,8 @@
+require 'actions/show_users'
+require 'actions/show_microposts'
+require 'actions/prepare_new_user'
+require 'actions/create_user'
+
 class UsersController < ApplicationController
   before_action :logged_in_user, only: [:index, :edit, :update, :destroy,
                                         :following, :followers]
@@ -5,27 +10,23 @@ class UsersController < ApplicationController
   before_action :admin_user,     only: :destroy
   
   def index
-    @users = User.paginate(page: params[:page])
+    @users = Actions::ShowUsers.do params[:page]
   end
   
   def show
-    @user = User.find(params[:id])
-    @microposts = @user.microposts.paginate(page: params[:page])
+    result = Actions::ShowMicroposts.do params[:id], params[:page]
+    @user = result
+    @microposts = result.microposts
   end
   
   def new
-    @user = User.new
+    @user = Actions::PrepareNewUser.do
   end
   
   def create
-    @user = User.new(user_params)
-    if @user.save
-      @user.send_activation_email
-      flash[:info] = "Please check your email to activate your account."
-      redirect_to root_url
-    else
-      render 'new'
-    end
+    create_new_user user_params
+  rescue Exception
+    repopulate_form user_params
   end
   
   def edit
@@ -61,6 +62,17 @@ class UsersController < ApplicationController
   end
   
   private
+
+  def repopulate_form data
+    @user = Actions::PrepareNewUser.do data
+    render 'new'
+  end
+
+  def create_new_user data
+    @user = Actions::CreateUser.do(data)
+    flash[:info] = "Please check your email to activate your account."
+    redirect_to root_url
+  end
     
     def user_params
       params.require(:user).permit(:name, :email, :password,

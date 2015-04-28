@@ -7,6 +7,10 @@ module Infrastucture
     def initialize model
       @model = model
     end
+
+    def paginate
+      
+    end
     
   end
 end
