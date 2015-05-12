@@ -16,9 +16,25 @@
     <% if @user.microposts.any? %>
       <h3>Microposts (<%= @user.microposts.count %>)</h3>
       <ol class="microposts">
-        <%= render @microposts %>
+        <% @microposts.each  do |micropost| %>
+          <li id="micropost-<%= micropost.id %>">
+            
+            <span class="user"></span>
+            <span class="content">
+              <%= micropost.content %>
+              <%= image_tag micropost.picture.url if micropost.picture? %>
+            </span>
+            <span class="timestamp">
+              Posted <%= time_ago_in_words(micropost.created_at) %> ago.
+              <% if current_user?(@user) %>
+                <%= link_to "delete", micropost, method: :delete,
+                                                 data: { confirm: "You sure?" } %>
+              <% end %>
+            </span>
+          </li>
+        <% end %>
       </ol>
-      <%= will_paginate @microposts %>
+      <%= will_paginate @user %>
     <% end %>
   </div>
 </div>
