@@ -8,17 +8,46 @@
       </h1>
     </section>
     <section class="stats">
-      <%= render 'shared/stats' %>
+      <div class="stats">
+        <a href="<%= following_user_path(@user) %>">
+          <strong id="following" class="stat">
+            <%= @user.following %>
+          </strong>
+          following
+        </a>
+        <a href="<%= followers_user_path(@user) %>">
+          <strong id="followers" class="stat">
+            <%= @user.followers %>
+          </strong>
+          followers
+        </a>
+      </div>
     </section>
   </aside>
   <div class="col-md-8">
-    <%= render 'follow_form' if logged_in? %>
+
+
     <% if @user.microposts.any? %>
       <h3>Microposts (<%= @user.microposts.count %>)</h3>
       <ol class="microposts">
-        <%= render @microposts %>
+
+        <% @microposts.each do |micropost|%>
+          <li id="micropost-<%= micropost.id %>">
+            <%= link_user @user, gravatar_for(@user, size: 50) %>
+            <span class="user"><%= link_user @user, @user.name %></span>
+            <span class="content">
+              <%= micropost.content %>
+              <%= image_tag micropost.picture_url if micropost.has_picture %>
+            </span>
+            <span class="timestamp">
+              <% if user_is_current?(@user.id) %>
+                <%= link_to "delete", micropost, method: :delete,
+                                                 data: { confirm: "You sure?" } %>
+              <% end %>
+            </span>
+          </li>
+        <% end %>
       </ol>
-      <%= will_paginate @microposts %>
     <% end %>
   </div>
 </div>

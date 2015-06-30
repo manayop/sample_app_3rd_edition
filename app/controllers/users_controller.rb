@@ -17,6 +17,7 @@ class UsersController < ApplicationController
     result = Actions::ShowMicroposts.do params[:id], params[:page]
     @user = result
     @microposts = result.microposts
+    @pagination = result.pagination
   end
   
   def new
