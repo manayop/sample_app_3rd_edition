@@ -1,11 +1,11 @@
 module Actions
   class UpdateUser
     def self.do user, data
-      message = nil
+      result = false
 	  if user.update_attributes(data)
-      	message = "Profile updated"
+      	result = true
       end
-      message    	
+      result
     end
   end
 end

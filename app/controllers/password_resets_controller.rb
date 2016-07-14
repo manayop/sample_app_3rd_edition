@@ -12,13 +12,12 @@ class PasswordResetsController < ApplicationController
   end
 
   def create
-    action_result = Actions::CreatePasswordReset.do params[:password_reset][:email]
-    @user = action_result["user"]
+    @user = Actions::CreatePasswordReset.do params[:password_reset][:email]
     if @user
-      flash[:info] = action_result["message"]
+      flash[:info] = "Email sent with password reset instructions"
       redirect_to root_url
     else
-      flash.now[:danger] = action_result["message"]
+      flash.now[:danger] = "Email address not found"
       render 'new'
     end
 

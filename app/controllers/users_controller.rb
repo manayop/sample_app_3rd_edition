@@ -36,9 +36,9 @@ class UsersController < ApplicationController
   end
   
   def update
-    result_message = Actions::UpdateUser.do @user, user_params
-    if result_message
-      flash[:success] = result_message
+    action_ok = Actions::UpdateUser.do @user, user_params
+    if action_ok
+      flash[:success] = "Profile updated"
       redirect_to @user
     else
       render 'edit'
@@ -46,8 +46,8 @@ class UsersController < ApplicationController
   end
   
   def destroy
-    result_message = Actions::DestroyUser.do params[:id]
-    flash[:success] = result_message
+    Actions::DestroyUser.do params[:id]
+    flash[:success] = "User deleted"
     redirect_to users_url
   end
   
