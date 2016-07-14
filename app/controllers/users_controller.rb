@@ -2,6 +2,8 @@ require 'actions/show_users'
 require 'actions/show_microposts'
 require 'actions/prepare_new_user'
 require 'actions/create_user'
+require 'actions/update_user'
+require 'actions/destroy_user'
 
 class UsersController < ApplicationController
   before_action :logged_in_user, only: [:index, :edit, :update, :destroy,
@@ -34,8 +36,9 @@ class UsersController < ApplicationController
   end
   
   def update
-    if @user.update_attributes(user_params)
-      flash[:success] = "Profile updated"
+    result_message = Actions::UpdateUser.do @user, user_params
+    if result_message
+      flash[:success] = result_message
       redirect_to @user
     else
       render 'edit'
@@ -43,8 +46,8 @@ class UsersController < ApplicationController
   end
   
   def destroy
-    User.find(params[:id]).destroy
-    flash[:success] = "User deleted"
+    result_message = Actions::DestroyUser.do params[:id]
+    flash[:success] = result_message
     redirect_to users_url
   end
   
