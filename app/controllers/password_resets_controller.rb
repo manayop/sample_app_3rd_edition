@@ -1,3 +1,8 @@
+require 'actions/create_password_reset'
+require 'actions/update_user'
+
+
+
 class PasswordResetsController < ApplicationController
   before_action :get_user,         only: [:edit, :update]
   before_action :valid_user,       only: [:edit, :update]
@@ -7,16 +12,16 @@ class PasswordResetsController < ApplicationController
   end
 
   def create
-    @user = User.find_by(email: params[:password_reset][:email].downcase)
+    action_result = Actions::CreatePasswordReset.do params[:password_reset][:email]
+    @user = action_result["user"]
     if @user
-      @user.create_reset_digest
-      @user.send_password_reset_email
-      flash[:info] = "Email sent with password reset instructions"
+      flash[:info] = action_result["message"]
       redirect_to root_url
     else
-      flash.now[:danger] = "Email address not found"
+      flash.now[:danger] = action_result["message"]
       render 'new'
     end
+
   end
   
   def edit
@@ -26,9 +31,13 @@ class PasswordResetsController < ApplicationController
     if password_blank?
       flash.now[:danger] = "Password can't be blank"
       render 'edit'
-    elsif @user.update_attributes(user_params)
+      return
+    end
+
+    result_message = Actions::UpdateUser.do @user,user_params
+    if result_message
       log_in @user
-      flash[:success] = "Password has been reset."
+      flash[:success] = result_message
       redirect_to @user
     else
       render 'edit'
